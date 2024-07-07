@@ -12,17 +12,23 @@ import com.example.myapplication.models.BoardSize
 import com.example.myapplication.models.MemoryCard
 import kotlin.math.min
 
-class MemoryBoardManager(
+class MemoryBoardAdapter(
     private val context: Context,
     private val boardSize: BoardSize,
-    private val cards: List<MemoryCard>
+    private val cards: List<MemoryCard>,
+    private val cardClickListener: CardClickListener
 ) :
-    RecyclerView.Adapter<MemoryBoardManager.ViewHolder>() {
+    RecyclerView.Adapter<MemoryBoardAdapter.ViewHolder>() {
 
     companion object {
         private const val MARGIN_SIZE = 10
-        private const val TAG = "MemoryBoardManager"
+        private const val TAG = "MemoryBoardAdapter"
     }
+
+    interface CardClickListener {
+        fun onCardClicked(position: Int)
+    }
+
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val cardWidth = parent.width / boardSize.getWidth() - (2*MARGIN_SIZE)
@@ -51,6 +57,7 @@ class MemoryBoardManager(
 
             imageButton.setOnClickListener {
                 Log.i(TAG, "Clicked on position $position")
+                cardClickListener.onCardClicked(position)
             }
         }
     }
