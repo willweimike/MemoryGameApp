@@ -4,9 +4,12 @@ import android.animation.ArgbEvaluator
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import android.widget.TextView
+import androidx.appcompat.app.AlertDialog
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.GridLayoutManager
@@ -54,13 +57,57 @@ class MainActivity : AppCompatActivity() {
         when (item.itemId) {
             R.id.mi_refresh -> {
                 // reset the game
-                setupBoard()
+                if (memoryGame.getNumMoves() > 0 && !memoryGame.haveWonGame()) {
+                    showAlertDialog("Quit current game?", null, View.OnClickListener {
+                        setupBoard()
+                    })
+                }
+                else {
+                    setupBoard()
+                }
+                return true
+            }
+            R.id.mi_new_size -> {
+                showNewSizeDialog()
+                return true
             }
         }
         return super.onOptionsItemSelected(item)
     }
 
+    private fun showNewSizeDialog() {
+        val boardSizeView = LayoutInflater.from(this).inflate(R.layout.dialog_board_size, null)
+        showAlertDialog("New Game", null, View.OnClickListener {
+            // set new board for the new game
+
+        })
+    }
+
+    private fun showAlertDialog(title: String, view: View?, positiveClickListener: View.OnClickListener) {
+        AlertDialog.Builder(this)
+            .setTitle(title)
+            .setView(view)
+            .setNegativeButton("Cancel", null)
+            .setPositiveButton("OK") { _, _ ->
+                positiveClickListener.onClick(null)
+            }.show()
+    }
+
     private fun setupBoard() {
+        when (boardSize) {
+            BoardSize.EASY -> {
+                tvNumMoves.text = "Easy: 4 x 2"
+                tvNumPairs.text = "Pairs: 0 / 4"
+            }
+            BoardSize.MEDIUM -> {
+                tvNumMoves.text = "Easy: 6 x 3"
+                tvNumPairs.text = "Pairs: 0 / 9"
+            }
+            BoardSize.HARD -> {
+                tvNumMoves.text = "Easy: 6 x 4"
+                tvNumPairs.text = "Pairs: 0 / 12"
+            }
+        }
         tvNumPairs.setTextColor(ContextCompat.getColor(this, R.color.color_progress_none))
         memoryGame = MemoryGame(boardSize)
         adapter = MemoryBoardAdapter(this, boardSize, memoryGame.cards, object: MemoryBoardAdapter.CardClickListener {
