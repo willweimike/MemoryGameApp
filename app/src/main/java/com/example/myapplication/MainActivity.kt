@@ -1,6 +1,9 @@
+@file:Suppress("DEPRECATION")
+
 package com.example.myapplication
 
 import android.animation.ArgbEvaluator
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -23,6 +26,7 @@ class MainActivity : AppCompatActivity() {
 
     companion object {
         private const val TAG = "MainActivity"
+        private const val CREATE_REQUEST_CODE = 42
     }
 
     private lateinit var clRoot: ConstraintLayout
@@ -72,8 +76,28 @@ class MainActivity : AppCompatActivity() {
                 showNewSizeDialog()
                 return true
             }
+            R.id.mi_custom -> {
+                showCreationDialog()
+                return true
+            }
         }
         return super.onOptionsItemSelected(item)
+    }
+
+    private fun showCreationDialog() {
+        val boardSizeView = LayoutInflater.from(this).inflate(R.layout.dialog_board_size, null)
+        val radioGroupSize = boardSizeView.findViewById<RadioGroup>(R.id.radioGroup)
+        showAlertDialog("Make Your Own Board", boardSizeView, View.OnClickListener {
+            // set new board for the new game
+            var desiredBoardSize = when (radioGroupSize.checkedRadioButtonId) {
+                R.id.rbEasy -> BoardSize.EASY
+                R.id.rbMedium -> BoardSize.MEDIUM
+                R.id.rbHard -> BoardSize.HARD
+                else ->BoardSize.HARD
+            }
+            val intent = Intent(this, CreateActivity::class.java)
+            startActivityForResult(intent, CREATE_REQUEST_CODE)
+        })
     }
 
     private fun showNewSizeDialog() {
@@ -113,11 +137,11 @@ class MainActivity : AppCompatActivity() {
                 tvNumPairs.text = "Pairs: 0 / 4"
             }
             BoardSize.MEDIUM -> {
-                tvNumMoves.text = "Easy: 6 x 3"
+                tvNumMoves.text = "Medium: 6 x 3"
                 tvNumPairs.text = "Pairs: 0 / 9"
             }
             BoardSize.HARD -> {
-                tvNumMoves.text = "Easy: 6 x 4"
+                tvNumMoves.text = "Hard: 6 x 4"
                 tvNumPairs.text = "Pairs: 0 / 12"
             }
         }
